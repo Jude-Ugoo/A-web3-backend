@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
 
@@ -17,16 +17,35 @@ export class UsersService {
   // }
 
   async findAllUsers() {
-    return this.prisma.user.findMany();
+    const users = await this.prisma.user.findMany();
+
+	if (!users.length) {
+		throw new NotFoundException("No users found")
+	}
   }
 
   async findOneUser(id: number) {
-    return this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { id },
     });
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`)
+    }
+
+	return user
   }
 
   async updateUser(id: number, updateUserDto: UpdateUserDto) {
+	// Check if user exists
+	const user = await this.prisma.user.findUnique({
+		where: { id }
+	})
+
+	if (!user) {
+		throw new NotFoundException(`Cannot update — user with id ${id} not found`)
+	}
+
     return this.prisma.user.update({
       where: { id },
       data: updateUserDto,
@@ -34,6 +53,16 @@ export class UsersService {
   }
 
   async deleteUser(id: number) {
+	// Check if user exists
+	const user = await this.prisma.user.findUnique({
+		where: { id }
+	})
+		
+	if (!user) {
+		throw new NotFoundException(`Cannot update — user with id ${id} not found`)
+	}
+	
+
     return this.prisma.user.delete({
       where: { id }
     });
