@@ -6,15 +6,15 @@ import { CreateUserDto, UpdateUserDto } from './dto';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async createUser(createUserDto: CreateUserDto) {
-    return this.prisma.user.create({
-      data: {
-        email: createUserDto.email,
-        firstName: createUserDto.firstName,
-        lastName: createUserDto.lastName,
-      },
-    });
-  }
+  // async createUser(createUserDto: CreateUserDto) {
+  //   return this.prisma.user.create({
+  //     data: {
+  //       email: createUserDto.email,
+  //       firstName: createUserDto.firstName,
+  //       lastName: createUserDto.lastName,
+  //     },
+  //   });
+  // }
 
   async findAllUsers() {
     return this.prisma.user.findMany();
