@@ -11,9 +11,7 @@ async function bootstrap() {
     forbidNonWhitelisted: true, //  throw error if unexpected props found
     transform: true, // auto-transform payloads to DTO instances
   }))
-  // const prismaService = app.get(PrismaService);
 
-  // await prismaService.enableShutdownHooks(app); // Connects to the database and closes the connection when the application shuts down.
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

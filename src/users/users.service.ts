@@ -19,9 +19,11 @@ export class UsersService {
   async findAllUsers() {
     const users = await this.prisma.user.findMany();
 
-	if (!users.length) {
-		throw new NotFoundException("No users found")
-	}
+    if (!users.length) {
+      throw new NotFoundException('No users found');
+    }
+
+    return users.map(({ hash: _, ...userWithoutHash }) => userWithoutHash);
   }
 
   async findOneUser(id: number) {
@@ -30,42 +32,54 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`)
+      throw new NotFoundException(`User with id ${id} not found`);
     }
 
-	return user
+    const { hash: _, ...userWithoutHash } = user;
+    return userWithoutHash;
   }
 
   async updateUser(id: number, updateUserDto: UpdateUserDto) {
-	// Check if user exists
-	const user = await this.prisma.user.findUnique({
-		where: { id }
-	})
+    // Check if user exists
+    const confirmUser = await this.prisma.user.findUnique({
+      where: { id },
+    });
 
-	if (!user) {
-		throw new NotFoundException(`Cannot update — user with id ${id} not found`)
-	}
+    if (!confirmUser) {
+      throw new NotFoundException(
+        `Cannot update — user with id ${id} not found`,
+      );
+    }
 
-    return this.prisma.user.update({
+    const user = await this.prisma.user.update({
       where: { id },
       data: updateUserDto,
     });
+
+    const { hash: _, ...userWithoutHash } = user;
+
+    return userWithoutHash;
   }
 
   async deleteUser(id: number) {
-	// Check if user exists
-	const user = await this.prisma.user.findUnique({
-		where: { id }
-	})
-		
-	if (!user) {
-		throw new NotFoundException(`Cannot update — user with id ${id} not found`)
-	}
-	
-
-    return this.prisma.user.delete({
-      where: { id }
+    // Check if user exists
+    const confirmUser = await this.prisma.user.findUnique({
+      where: { id },
     });
-  }
 
+    if (!confirmUser) {
+      throw new NotFoundException(
+        `Cannot delete — user with id ${id} not found`,
+      );
+    }
+
+    const user = await this.prisma.user.delete({
+      where: { id },
+    });
+
+    // const { hash: _, ...userWithoutHash } = user;
+    // return userWithoutHash;
+
+	return "User deleted successfully"
+  }
 }
